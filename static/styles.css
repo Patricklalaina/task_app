@@ -1,41 +1,173 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-* {
-	font-family: "Roboto", sans-serif;
-	box-sizing: border-box;
-}
 :root {
-	--gh-bg: #0d1117;
-    --gh-panel: #161b22;
-    --gh-border: #30363d;
-    --gh-text: #c9d1d9;
-    --gh-accent: rgb(63, 255, 127);
-    --gh-hover: #21262d;
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-tertiary: #21262d;
+    --bg-canvas: #010409;
+    --text-primary: #f0f6fc;
+    --text-secondary: #8b949e;
+    --text-muted: #6e7681;
+    --border-default: #30363d;
+    --border-muted: #21262d;
+    --accent-primary: #238636;
+    --accent-secondary: #1f6feb;
+    --accent-danger: #da3633;
+    --accent-warning: #d29922;
 }
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-family: Arial, sans-serif;
+}
+
 body {
-	margin: 0;
-	padding: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-primary);
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    background: var(--bg-secondary);
+    width: 100%;
+    height: 90px;
+    align-items: center;
+    border-bottom: 1px var(--border-default) solid;
+    position: fixed;
+    top: 0;
+    justify-content: space-evenly;
+    /* padding: 0px 15px; */
+}
+
+.header .logo {
+    display: flex;
+    width: fit-content;
+    justify-content: center;
+    align-items: center;
+}
+
+.header .logo h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.header .nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+}
+
+
+.header .nav a {
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.header .nav .btn {
+    width: 100px;
+    height: auto;
+    padding: 10px 15px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.header .nav .btn-outline {
+    border: 2px var(--border-default) solid;
+}
+
+.header .nav .btn-primary {
+    background: var(--accent-primary);
+    color: var(--text-primary);
 }
 
 .container {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-around;
-	align-items: center;
-	width: 100vw;
-	height: 100vh;
-	background: var(--gh-bg);
-	color: var(--gh-text);
-	font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
 }
 
-.side-left {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	align-items: center;
-	width: 15%;
-	height: 100%;
-	position: fixed;
-	left: 0;
-	border: 2px var(--gh-border) solid;
+.container form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    height: auto;
+    padding: 50px;
+    background: var(--bg-secondary);
+    border: 1px var(--border-default) solid;
+    border-radius: 6px;
+}
+
+.container form .title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.container form >* {
+    width: 400px;
+    height: 70px;
+    outline: none;
+    padding: 10px;
+}
+
+.container form input {
+    background: transparent;
+    border: 1px var(--border-default) solid;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.container form button {
+    color: var(--text-primary);
+    background-color: var(--accent-primary);
+    border: none;
+    border-radius: 6px;
+}
+
+.container form .error-message {
+    color: var(--accent-danger);
+}
+
+.profil-option {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profil-option .btn {
+    text-decoration: none;
+    width: max-content;
+    height: auto;
+    padding: 10px 15px;
+    border-radius: 6px;
+    text-align: center;
+    background: var(--accent-danger);
+    color: var(--text-primary);
+    margin-left: 20px;
+}
+
+.profil-option h2 {
+    font-size: large;
+    color: #238636;
+}
+
+.profil-option p {
+    font-size: small;
+    opacity: 70%;
 }

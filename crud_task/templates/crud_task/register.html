@@ -1,0 +1,25 @@
+{% extends "crud_task/base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form action="{% url 'add_user'%}" method="POST">
+        {% csrf_token %}
+        <h1 class="title">Inscription</h1>
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+        <input type="text" name="user_id" id="identifiant" placeholder="Votre identifiant unique" required>
+        <input type="email" name="user_email" id="email" placeholder="Votre email" required>
+        <input type="password" name="user_password" id="password" placeholder="Votre mot de passe" required>
+        <input type="password" name="user_password_confirm" id="confirmation" placeholder="Confirmer mot de passe" required>
+        <button type="submit" class="confirm">Confirmer</button>
+        <div class="back-btn">
+            <a href="{% url 'home' %}">Retour à l'accueil</a>
+        </div>
+    </form>
+</div>
+{% endblock  %}

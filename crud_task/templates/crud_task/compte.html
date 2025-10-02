@@ -1,0 +1,18 @@
+{% extends "crud_task/base.html" %}
+
+{% block title %}Mon Compte{% endblock %}
+
+{% block content %}
+    <div class="header">
+        <div class="logo">
+            <h1>e-Task</h1>
+        </div>
+        <div class="profil-option">
+            <div class="info-profil">
+                <h2>{{user.user_id}}</h2>
+                <p class="mail">{{user.user_mail}}</p>
+            </div>
+            <a href="{% url 'logout' %}" class="btn">Se déconnecter</a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "crud_task/base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <div class="header">
+        <div class="logo">
+            <h1>e-Task</h1>
+        </div>
+        <div class="nav">
+            <a href="#about">About</a>
+            <a href="#features">Presentation</a>
+            <a href="{% url 'login' %}" class="btn btn-outline">Login</a>
+            <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
+        </div>
+    </div>
+{% endblock %}
