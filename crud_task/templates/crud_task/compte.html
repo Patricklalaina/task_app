@@ -5,14 +5,106 @@
 {% block content %}
     <div class="header">
         <div class="logo">
+            <i class="fas fa-tasks"></i>
             <h1>e-Task</h1>
         </div>
-        <div class="profil-option">
-            <div class="info-profil">
-                <h2>{{user.user_id}}</h2>
-                <p class="mail">{{user.user_mail}}</p>
+        <div class="profil">
+            <div class="profile-display">
+                <div class="user-info">
+                    <i class="fas fa-user"></i>
+                    <span>{{user.user_id}}</span>
+                </div>
+                <i class="fas fa-chevron-down profile-arrow"></i>
             </div>
-            <a href="{% url 'logout' %}" class="btn">Se déconnecter</a>
+            <div class="profil-option">
+                <div class="info-profil">
+                    <div class="profile-header">
+                        <i class="fas fa-user-circle user-avatar"></i>
+                        <div>
+                            <h2>{{user.user_id}}</h2>
+                            <p class="mail">
+                                <i class="fas fa-envelope"></i>
+                                {{user.user_mail}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <a href="#" class="profile-link">
+                        <i class="fas fa-cog"></i>
+                        Paramètres
+                    </a>
+                    <a href="#" class="profile-link">
+                        <i class="fas fa-chart-bar"></i>
+                        Statistiques
+                    </a>
+                    <div class="divider"></div>
+                    <a href="{% url 'logout' %}" class="btn btn-exit">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Se déconnecter
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
+
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <h1>
+                <i class="fas fa-tachometer-alt"></i>
+                Tableau de bord
+            </h1>
+        </div>
+        
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <i class="fas fa-tasks stat-icon"></i>
+                <div class="stat-info">
+                    <h3>{{ active_task }}</h3>
+                    <p>Tâches actives</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-double stat-icon"></i>
+                <div class="stat-info">
+                    <h3>{{ finish_task }}</h3>
+                    <p>Terminées</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock stat-icon"></i>
+                <div class="stat-info">
+                    <h3>{{ overdue_task }}</h3>
+                    <p>En retard</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <a href="#" class="action-btn">
+                <i class="fas fa-plus"></i>
+                Nouvelle tâche
+            </a>
+            <a href="#" class="action-btn">
+                <i class="fas fa-project-diagram"></i>
+                Nouveau projet
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let profile = document.querySelector(".profile-display");
+        let optionProfile = document.querySelector(".profil-option");
+        let profileArrow = document.querySelector(".profile-arrow");
+
+        profile.addEventListener('click', () => {
+            if (optionProfile.style.display == "flex") {
+                optionProfile.style.display = "none";
+                profileArrow.classList.remove('rotated');
+            } else {
+                optionProfile.style.display = "flex";
+                profileArrow.classList.add('rotated');
+            }
+        });
+    </script>
 {% endblock %}

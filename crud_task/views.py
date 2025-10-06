@@ -1,7 +1,9 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from .models import User
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
+from .models import User, Project, Task
+from django.db.models import Count
+from datetime import timedelta
+from django.utils import timezone
 
 def index(request):
     if (request.session.get('user_id')):
@@ -19,7 +21,13 @@ def add_user(request):
         password = request.POST.get('user_password')
         confirm = request.POST.get('user_password_confirm')
 
+        # verification de la longueur
+        if (len(user_id) > 100 or len(user_email) > 200 or len(password) > 200 or len(confirm) > 200):
+            return render(request, 'crud_task/register.html', {
+                'error': "Erreur! Veuillez reéssayer"
+            })
         # Vérification mot de passe
+        
         if password != confirm:
             return render(request, 'crud_task/register.html', {
                 'error': "Les mots de passe ne correspondent pas.",
@@ -51,7 +59,24 @@ def compte(request):
         return redirect('login')  # Si pas connecté → login obligatoire
 
     user = User.objects.get(user_id=user_id)
-    return render(request, 'crud_task/compte.html', {'user': user})
+    project = Project.objects.filter(p_user=user_id)
+    tasks = Task.objects.filter(task_project__p_user=user)
+    active_task = tasks.filter(task_status=True).count()
+    finish_task = tasks.filter(task_finish=True).count()
+    overdue_tasks_count = len([
+        task for task in tasks
+        if not task.task_finish  # Si elle n'est pas marquée comme terminée
+        and task.task_duration is not None # Si une durée est définie
+        and (task.task_creation + task.task_duration) < timezone.now() # Si l'échéance est passée
+    ])
+    return render(request, 'crud_task/compte.html', {
+        'user': user,
+        'project': project,
+        'tasks': tasks,
+        'active_task': active_task,
+        'finish_task': finish_task,
+        'overdue_task': overdue_tasks_count
+    })
 
 
 def login_view(request):

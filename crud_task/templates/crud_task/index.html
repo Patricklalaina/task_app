@@ -5,13 +5,61 @@
 {% block content %}
     <div class="header">
         <div class="logo">
+            <i class="fas fa-tasks"></i>
             <h1>e-Task</h1>
         </div>
         <div class="nav">
-            <a href="#about">About</a>
-            <a href="#features">Presentation</a>
-            <a href="{% url 'login' %}" class="btn btn-outline">Login</a>
-            <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
+            <a href="{% url 'login' %}" class="btn btn-outline">
+                <i class="fas fa-sign-in-alt"></i>
+                Login
+            </a>
+            <a href="{% url 'register' %}" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i>
+                Register
+            </a>
+        </div>
+    </div>
+    <div class="about">
+        <div class="about-content">
+            <div class="hero-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <h1>Gérez vos tâches avec efficacité</h1>
+            <p>Une plateforme moderne de gestion de projets et de tâches, conçue pour optimiser votre productivité avec une interface élégante et intuitive.</p>
+            <div class="about-buttons">
+                <a href="{% url "register" %}" class="btn btn-primary">
+                    <i class="fas fa-play"></i>
+                    Commencer
+                </a>
+                <a href="support.html" class="btn btn-secondary btn-large">
+                    <i class="fas fa-heart"></i>
+                    Supportez-moi
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="features">
+        <div class="features-container">
+            <div class="feature">
+                <i class="fas fa-check-circle"></i>
+                <h3>Simple & Efficace</h3>
+                <p>Interface intuitive pour une gestion rapide</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-sync-alt"></i>
+                <h3>Synchronisation</h3>
+                <p>Vos tâches accessibles partout</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Sécurisé</h3>
+                <p>Vos données protégées</p>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="footer-container">
+            <p>&copy; 2025 e-Task. Patrick Randriamanambola.</p>
         </div>
     </div>
 {% endblock %}
