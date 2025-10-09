@@ -53,30 +53,48 @@ def add_user(request):
 
     return redirect('register')
 
-def compte(request):
+# --- fonction utilitaire réutilisable ---
+def render_compte_page(request, extra_context=None):
+    """
+    Récupère toutes les données du tableau de bord et rend compte.html.
+    extra_context permet d’ajouter des variables comme 'error' ou 'success'.
+    """
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('login')  # Si pas connecté → login obligatoire
+        return redirect('login')
 
     user = User.objects.get(user_id=user_id)
-    project = Project.objects.filter(p_user=user_id)
+    projects = Project.objects.filter(p_user=user_id)
     tasks = Task.objects.filter(task_project__p_user=user)
+
     active_task = tasks.filter(task_status=True).count()
     finish_task = tasks.filter(task_finish=True).count()
-    overdue_tasks_count = len([
+
+    overdue_task = len([
         task for task in tasks
-        if not task.task_finish  # Si elle n'est pas marquée comme terminée
-        and task.task_duration is not None # Si une durée est définie
-        and (task.task_creation + task.task_duration) < timezone.now() # Si l'échéance est passée
+        if not task.task_finish
+        and task.task_duration is not None
+        and (task.task_creation + task.task_duration) < timezone.now()
     ])
-    return render(request, 'crud_task/compte.html', {
+
+    context = {
         'user': user,
-        'project': project,
+        'project': projects,
         'tasks': tasks,
         'active_task': active_task,
         'finish_task': finish_task,
-        'overdue_task': overdue_tasks_count
-    })
+        'overdue_task': overdue_task,
+    }
+
+    # on fusionne avec le contexte additionnel (error, success…)
+    if extra_context:
+        context.update(extra_context)
+
+    return render(request, 'crud_task/compte.html', context)
+
+
+def compte(request):
+    return render_compte_page(request)
 
 
 def login_view(request):
@@ -116,3 +134,54 @@ def logout_view(request):
 
     request.session.flush()  # Vide toute la session
     return redirect('login')
+
+
+def get_user_in_request(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return None
+    try:
+        return User.objects.get(user_id=user_id)
+    except User.DoesNotExist:
+        return None
+
+def add_project(request):
+    if request.method == 'POST':
+        user = get_user_in_request(request)
+        if not user:
+            return redirect('login')
+
+        name = request.POST.get('p_name')
+        desc = (request.POST.get('p_desc') or '').strip()
+
+        if len(name) > 100:
+            # Appel de la fonction réutilisable avec un message d’erreur
+            return render_compte_page(request, {
+                'error': "Entrée invalide"
+            })
+
+        Project.objects.create(
+            p_name=name,
+            p_description=desc,
+            p_user=user
+        )
+        list_project = [Proj for Proj in Project.objects.filter(p_user=user)]
+        # Message de succès réutilisant la même page
+        return render_compte_page(request, {
+            'success': "Projet créé avec succès",
+            'list_project': list_project
+        })
+
+    return redirect('compte')
+
+def del_project(request, project_id):
+    try:
+        project = Project.objects.get(p_id=project_id)
+    except Project.DoesNotExist:
+        return render_compte_page(request, {
+            'error': "Suppression impossible! Projet non existante"
+        })
+    project.delete()
+    return render_compte_page(request, {
+            'success': "Suppression éffectuée",
+        })

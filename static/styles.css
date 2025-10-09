@@ -85,6 +85,8 @@ body {
   align-items: center;
   justify-content: space-between;
   min-height: 64px;
+  position: fixed;
+  width: 100%;
 }
 
 .logo h1 {
@@ -822,7 +824,175 @@ input[type="password"] ~ .input-group::before,
   transform: translateY(-2px);
 }
 
-/* Responsive pour les nouvelles fonctionnalités */
+#support {
+  display: flex;
+  flex-direction: column;
+  height: 50vh;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+}
+
+#support h1 {
+  color: var(--accent-emphasis);
+  font-size: 4rem;
+  font-style: italic;
+}
+
+#support .name {
+  margin: 10px;
+  font-style: italic;
+}
+
+#support i {
+  margin-right: 10px;
+  color: #1a7feb;
+}
+
+.project-listing {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: fit-content;
+  padding: 50px;
+  background: var(--bg-canvas);
+  flex-wrap: wrap;
+}
+
+.project-listing .project-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30%;
+  border: 2px var(--border-default) solid;
+  height: fit-content;
+  padding: 20px;
+  border-radius: 8px;
+  margin-left: 30px;
+  margin-bottom: 30px;
+  /* IMPORTANT : permet aux enfants de rétrécir correctement */
+  min-width: 0;
+}
+
+.project-listing .project-card .title-project {
+  display: block;
+  width: 100%;
+  height: fit-content;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
+  min-width: 0;
+}
+
+.project-listing .project-card .description-project {
+  /* remettre en bloc (paragraphe classique) */
+  display: block;
+  width: 100%;
+  height: fit-content;
+  padding: 5px;
+  color: #656d76;
+  background: #30363d;
+  margin: 5px 0;
+  border-radius: 6px;
+  text-align: left;
+  font-size: small;
+  font-style: italic;
+  /* propriétés de cassure des mots */
+  white-space: normal;        /* autorise retour à la ligne automatique */
+  overflow-wrap: anywhere;    /* moderne et permissif — casse les mots si nécessaire */
+  word-wrap: break-word;      /* fallback */
+  /* si tu veux forcer la casse (plus agressif) : word-break: break-all; */
+  min-width: 0;         /* sécurité si parent est flex */
+  opacity: 50%;
+}
+
+
+.project-listing .project-card .task-container {
+  flex-grow: 1;
+  width: 100%;
+  height: fit-content;
+  background: var(--bg-muted);
+  border-radius: 6px;
+  padding: 3px;
+}
+
+.project-delete {
+  justify-content: center;
+  text-decoration: none;
+  color: var(--danger-fg);
+  border: 1px var(--danger-fg) solid;
+  width: 100%;
+  height: fit-content;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  margin-top: 5px;
+  padding: 15px;
+  transition: 0.6s;
+}
+
+.project-delete:hover {
+  background: #f852494d;
+}
+
+.project-delete .del-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  text-decoration: none;
+  color: var(--danger-fg);
+}
+
+.task-action {
+  justify-content: center;
+  text-decoration: none;
+  color: #f0f6fc;
+  border: 1px #30363d solid;
+  width: 100%;
+  height: fit-content;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  margin-top: 5px;
+  padding: 15px;
+  transition: 0.8s;
+}
+  
+.task-action .task-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  text-decoration: none;
+  color: #f0f6fc;
+}
+
+.task-action .task-btn i {
+  margin-right: 5px;
+  color: #2f81f7;
+}
+
+.task-action:hover {
+  background: #161b22b7;
+}
+
+@media (max-width: 1024px) {
+  .project-listing .project-card {
+    flex: 1 1 calc(45% - 30px); /* 2 cartes par ligne */
+  }
+}
+
+@media (max-width: 700px) {
+  .project-listing {
+    padding: 20px;
+  }
+  .project-listing .project-card {
+    flex: 1 1 100%; /* 1 carte par ligne */
+  }
+}
+
 @media (max-width: 768px) {
   .features-container {
     grid-template-columns: 1fr;

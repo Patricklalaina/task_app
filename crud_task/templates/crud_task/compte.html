@@ -3,6 +3,17 @@
 {% block title %}Mon Compte{% endblock %}
 
 {% block content %}
+    {% if error %}
+        <div class="error-modal">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+    {% endif %}
+    {% if success %}
+        <div class="success-modal">
+            <i class="fas fa-check-circle"></i> {{ success }}
+        </div>
+    {% endif %}
+
     <div class="header">
         <div class="logo">
             <i class="fas fa-tasks"></i>
@@ -60,6 +71,13 @@
             <div class="stat-card">
                 <i class="fas fa-tasks stat-icon"></i>
                 <div class="stat-info">
+                    <h3>{{ project|length }}</h3>
+                    <p>Projets actives</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-tasks stat-icon"></i>
+                <div class="stat-info">
                     <h3>{{ active_task }}</h3>
                     <p>Tâches actives</p>
                 </div>
@@ -68,30 +86,60 @@
                 <i class="fas fa-check-double stat-icon"></i>
                 <div class="stat-info">
                     <h3>{{ finish_task }}</h3>
-                    <p>Terminées</p>
+                    <p>Tâches terminées</p>
                 </div>
             </div>
             <div class="stat-card">
                 <i class="fas fa-clock stat-icon"></i>
                 <div class="stat-info">
                     <h3>{{ overdue_task }}</h3>
-                    <p>En retard</p>
+                    <p>Tâches en retards</p>
                 </div>
             </div>
         </div>
 
         <div class="quick-actions">
             <a href="#" class="action-btn">
-                <i class="fas fa-plus"></i>
-                Nouvelle tâche
-            </a>
-            <a href="#" class="action-btn">
                 <i class="fas fa-project-diagram"></i>
                 Nouveau projet
             </a>
         </div>
-    </div>
+        <div class="modals modals-hide add-project" id="addProjectModal" role="dialog" aria-modal="true" aria-hidden="true">
+            <div class="modal-content" tabindex="-1">
+                <!-- <-- Le X est bien à l'intérieur de .modal-content -->
+                <button class="close-modal" type="button" aria-label="Fermer">&times;</button>
 
+                <form action="{% url 'add_project' %}" method="POST">
+                    {% csrf_token %}
+                    <h1 class="title">Créer projet</h1>
+                    <input type="text" name="p_name" id="create-project" placeholder="Titre du nouveau projet" required>
+                    <input type="text" name="p_desc" id="create-project-desc" placeholder="Description du projet">
+                    <button type="submit" class="confirm">Créer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="project-listing">
+        {% for projet in project %}
+            <div class="project-card">
+                <h1 class="title-project">{{ projet.p_name }}</h1>
+                <p class="description-project">{{ projet.p_description }}</p>
+                <div class="task-container"></div>
+                <div class="task-action">
+                    <a href="#" class="task-btn">
+                        <i class="fas fa-list"></i>
+                        Nouvelle tâche
+                    </a>
+                </div>
+                <div class="project-delete">
+                    <a href="{% url 'delete' projet.p_id %}" class="del-btn">
+                        <i class="fas fa-trash"></i>
+                        Supprimer
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
     <script>
         let profile = document.querySelector(".profile-display");
         let optionProfile = document.querySelector(".profil-option");
@@ -104,6 +152,30 @@
             } else {
                 optionProfile.style.display = "flex";
                 profileArrow.classList.add('rotated');
+            }
+        });
+        const modal = document.querySelector('.modals.add-project');
+        const openModalBtn = document.querySelector('.action-btn');
+        const closeModalBtn = document.querySelector('.close-modal');
+
+        // Ouvrir la modale
+        openModalBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            modal.classList.remove('modals-hide');
+            modal.classList.add('modals-show');
+        });
+
+        // Fermer la modale
+        closeModalBtn.addEventListener('click', () => {
+            modal.classList.remove('modals-show');
+            modal.classList.add('modals-hide');
+        });
+
+        // Fermer en cliquant en dehors du formulaire
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('modals-show');
+                modal.classList.add('modals-hide');
             }
         });
     </script>

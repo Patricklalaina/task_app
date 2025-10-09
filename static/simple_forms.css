@@ -1,0 +1,131 @@
+/* === Modal overlay + contenu (création de projet) === */
+.modals {
+  position: fixed;
+  inset: 0; /* top:0; right:0; bottom:0; left:0; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(13, 17, 23, 0.7);
+  z-index: 2000;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms var(--transition), visibility 220ms var(--transition);
+}
+
+.modals.modals-show {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background-color: var(--bg-default);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: calc(var(--space-6) - 4px);
+  box-shadow: var(--shadow-large);
+  transform: translateY(-8px) scale(0.99);
+  transition: transform 220ms var(--transition), opacity 220ms var(--transition);
+  outline: none;
+}
+
+.modals.modals-show .modal-content {
+  transform: translateY(0) scale(1);
+}
+
+/* Close button INSIDE modal-content (coin supérieur droit) */
+.close-modal {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--fg-muted);
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.close-modal:hover {
+  color: var(--danger-fg);
+  transform: scale(1.08);
+  background: rgba(255,255,255,0.02);
+}
+
+/* Form fields inside modal keep your existing styles but ensure spacing */
+.modals .title { margin-top: 4px; margin-bottom: var(--space-4); text-align: center; }
+.modals input[type="text"] { margin-bottom: var(--space-4); }
+
+/* Bloquer le scroll de la page quand modal ouvert */
+.no-scroll {
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Accessibilité : focus visible */
+.modal-content:focus {
+  box-shadow: 0 0 0 4px var(--accent-subtle);
+  outline: none;
+}
+
+
+/* === Messages flottants (erreur / succès) === */
+.error-modal,
+.success-modal {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-weight: 500;
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  z-index: 3000;
+  animation: slideFade 4s ease forwards;
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Style erreur */
+.error-modal {
+  background: linear-gradient(135deg, #d93025, #ff4b4b);
+  border-left: 4px solid #ffb3b3;
+}
+
+/* Style succès */
+.success-modal {
+  background: linear-gradient(135deg, #238636, #2ea043);
+  border-left: 4px solid #a8f0b3;
+}
+
+/* Animation d’apparition et disparition */
+@keyframes slideFade {
+  0% {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  85% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+}
