@@ -4,6 +4,8 @@ from .models import User, Project, Task
 from django.db.models import Count
 from datetime import timedelta
 from django.utils import timezone
+from django.utils.dateparse import parse_duration
+
 
 def index(request):
     if (request.session.get('user_id')):
@@ -57,7 +59,7 @@ def add_user(request):
 def render_compte_page(request, extra_context=None):
     """
     Récupère toutes les données du tableau de bord et rend compte.html.
-    extra_context permet d’ajouter des variables comme 'error' ou 'success'.
+    extra_context permet d'ajouter des variables comme 'error' ou 'success'.
     """
     user_id = request.session.get('user_id')
     if not user_id:
@@ -76,14 +78,15 @@ def render_compte_page(request, extra_context=None):
         and task.task_duration is not None
         and (task.task_creation + task.task_duration) < timezone.now()
     ])
-
+    for projet in projects:
+        projet.tasks = [task for task in tasks if task.task_project == projet]
     context = {
         'user': user,
         'project': projects,
-        'tasks': tasks,
         'active_task': active_task,
         'finish_task': finish_task,
         'overdue_task': overdue_task,
+        "now": timezone.now(),
     }
 
     # on fusionne avec le contexte additionnel (error, success…)
@@ -155,7 +158,7 @@ def add_project(request):
         desc = (request.POST.get('p_desc') or '').strip()
 
         if len(name) > 100:
-            # Appel de la fonction réutilisable avec un message d’erreur
+            # Appel de la fonction réutilisable avec un message d'erreur
             return render_compte_page(request, {
                 'error': "Entrée invalide"
             })
@@ -185,3 +188,128 @@ def del_project(request, project_id):
     return render_compte_page(request, {
             'success': "Suppression éffectuée",
         })
+
+def add_task(request):
+    if request.method == "POST":
+        user_id = request.session.get("user_id")
+        if not user_id:
+            return redirect("login")
+
+        project_id = request.POST.get("task_project")
+        title = request.POST.get("task_title")
+        desc = request.POST.get("task_desc")
+        duration_str = request.POST.get("task_duration")
+        is_finished = request.POST.get("task_finish") == "on"  # Nouveau: récupérer l'état terminé
+
+        if not project_id or not title:
+            return render_compte_page(request, {"error": "Le titre et le projet sont obligatoires."})
+
+        try:
+            project = Project.objects.get(p_id=project_id, p_user=user_id)
+        except Project.DoesNotExist:
+            return render_compte_page(request, {"error": "Projet introuvable."})
+
+        task = Task.objects.create(
+            task_title=title,
+            task_desc=desc,
+            task_project=project,
+            task_duration=parse_duration(duration_str) if duration_str else None,
+            task_finish=is_finished,  # Nouveau: définir l'état terminé
+            task_status=not is_finished  # Si terminée, alors pas active
+        )
+
+        status_message = "terminée" if is_finished else "créée"
+        return render_compte_page(request, {"success": f"Tâche '{task.task_title}' {status_message} avec succès."})
+
+def delete_task(request, task_id):
+    try:
+        task = Task.objects.get(task_id=task_id)
+        task.delete()
+        return render_compte_page(request, {"success": "Tâche supprimée avec succès."})
+    except Task.DoesNotExist:
+        return render_compte_page(request, {"error": "Tâche introuvable."})
+
+# Nouvelle fonction pour basculer l'état d'une tâche
+def toggle_task_status(request, task_id):
+    """
+    Bascule l'état terminé/non terminé d'une tâche
+    """
+    if request.method == "POST":
+        user_id = request.session.get("user_id")
+        if not user_id:
+            return redirect("login")
+
+        try:
+            # Vérifier que la tâche appartient bien à l'utilisateur connecté
+            task = Task.objects.get(task_id=task_id, task_project__p_user=user_id)
+            
+            # Basculer l'état
+            task.task_finish = not task.task_finish
+            task.task_status = not task.task_finish  # Inverse de task_finish
+            task.save()
+            
+            status_message = "marquée comme terminée" if task.task_finish else "marquée comme active"
+            return render_compte_page(request, {
+                "success": f"Tâche '{task.task_title}' {status_message}."
+            })
+            
+        except Task.DoesNotExist:
+            return render_compte_page(request, {
+                "error": "Tâche introuvable ou accès non autorisé."
+            })
+    
+    return redirect('compte')
+
+# Nouvelle fonction pour marquer une tâche comme terminée (alternative)
+def complete_task(request, task_id):
+    """
+    Marque une tâche comme terminée
+    """
+    if request.method == "POST":
+        user_id = request.session.get("user_id")
+        if not user_id:
+            return redirect("login")
+
+        try:
+            task = Task.objects.get(task_id=task_id, task_project__p_user=user_id)
+            task.task_finish = True
+            task.task_status = False  # Plus active si terminée
+            task.save()
+            
+            return render_compte_page(request, {
+                "success": f"Tâche '{task.task_title}' marquée comme terminée."
+            })
+            
+        except Task.DoesNotExist:
+            return render_compte_page(request, {
+                "error": "Tâche introuvable ou accès non autorisé."
+            })
+    
+    return redirect('compte')
+
+# Nouvelle fonction pour réactiver une tâche
+def reactivate_task(request, task_id):
+    """
+    Réactive une tâche terminée
+    """
+    if request.method == "POST":
+        user_id = request.session.get("user_id")
+        if not user_id:
+            return redirect("login")
+
+        try:
+            task = Task.objects.get(task_id=task_id, task_project__p_user=user_id)
+            task.task_finish = False
+            task.task_status = True  # Redevient active
+            task.save()
+            
+            return render_compte_page(request, {
+                "success": f"Tâche '{task.task_title}' réactivée."
+            })
+            
+        except Task.DoesNotExist:
+            return render_compte_page(request, {
+                "error": "Tâche introuvable ou accès non autorisé."
+            })
+    
+    return redirect('compte')

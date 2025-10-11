@@ -42,17 +42,14 @@
                 </div>
                 <div class="profile-actions">
                     <a href="#" class="profile-link">
-                        <i class="fas fa-cog"></i>
-                        Paramètres
+                        <i class="fas fa-cog"></i> Paramètres
                     </a>
                     <a href="#" class="profile-link">
-                        <i class="fas fa-chart-bar"></i>
-                        Statistiques
+                        <i class="fas fa-chart-bar"></i> Statistiques
                     </a>
                     <div class="divider"></div>
                     <a href="{% url 'logout' %}" class="btn btn-exit">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Se déconnecter
+                        <i class="fas fa-sign-out-alt"></i> Se déconnecter
                     </a>
                 </div>
             </div>
@@ -61,10 +58,7 @@
 
     <div class="dashboard">
         <div class="dashboard-header">
-            <h1>
-                <i class="fas fa-tachometer-alt"></i>
-                Tableau de bord
-            </h1>
+            <h1><i class="fas fa-tachometer-alt"></i> Tableau de bord</h1>
         </div>
         
         <div class="dashboard-stats">
@@ -104,43 +98,154 @@
                 Nouveau projet
             </a>
         </div>
-        <div class="modals modals-hide add-project" id="addProjectModal" role="dialog" aria-modal="true" aria-hidden="true">
-            <div class="modal-content" tabindex="-1">
-                <!-- <-- Le X est bien à l'intérieur de .modal-content -->
-                <button class="close-modal" type="button" aria-label="Fermer">&times;</button>
 
+        <!-- MODAL AJOUT PROJET -->
+        <div class="modals modals-hide add-project" id="addProjectModal">
+            <div class="modal-content" tabindex="-1">
+                <button class="close-modal" type="button">&times;</button>
                 <form action="{% url 'add_project' %}" method="POST">
                     {% csrf_token %}
                     <h1 class="title">Créer projet</h1>
-                    <input type="text" name="p_name" id="create-project" placeholder="Titre du nouveau projet" required>
-                    <input type="text" name="p_desc" id="create-project-desc" placeholder="Description du projet">
+                    <input type="text" name="p_name" placeholder="Titre du nouveau projet" required>
+                    <input type="text" name="p_desc" placeholder="Description du projet">
                     <button type="submit" class="confirm">Créer</button>
                 </form>
             </div>
         </div>
     </div>
+
     <div class="project-listing">
         {% for projet in project %}
             <div class="project-card">
                 <h1 class="title-project">{{ projet.p_name }}</h1>
                 <p class="description-project">{{ projet.p_description }}</p>
-                <div class="task-container"></div>
+
+                <div class="task-container">
+                    {% if projet.tasks|length %}
+                        {% for task in projet.tasks %}
+                            <div class="task-item {% if task.task_finish %}task-completed{% endif %}">
+                                <div class="task-header">
+                                    <h3 class="task-title">
+                                        <i class="fas fa-check-circle{% if not task.task_finish %} incomplete{% endif %}"></i>
+                                        {{ task.task_title }}
+                                    </h3>
+                                    <div class="task-status-badge">
+                                        {% if task.task_finish %}
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-check"></i> Terminée
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-active">
+                                                <i class="fas fa-clock"></i> Active
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {% if task.task_desc %}
+                                    <p class="task-desc">{{ task.task_desc }}</p>
+                                {% endif %}
+
+                                <div class="task-infos">
+                                    {% if task.task_duration %}
+                                        {% with end_time=task.task_creation|add:task.task_duration %}
+                                            {% if not task.task_finish %}
+                                                <p class="task-duration">
+                                                    <i class="fas fa-hourglass-half"></i>
+                                                    Temps restant :
+                                                    {% if end_time > now %}
+                                                        {{ end_time|timeuntil:now }}
+                                                    {% else %}
+                                                        <span class="overdue">En retard</span>
+                                                    {% endif %}
+                                                </p>
+                                            {% else %}
+                                                <p class="task-finished">
+                                                    <i class="fas fa-check"></i> 
+                                                    Terminée le {{ task.task_creation|date:"d/m/Y à H:i" }}
+                                                </p>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endif %}
+                                </div>
+
+                                <div class="task-actions">
+                                    <!-- Bouton pour basculer l'état de la tâche -->
+                                    <form method="POST" action="{% url 'toggle_task_status' task.task_id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        {% if task.task_finish %}
+                                            <button type="submit" class="btn-task-toggle btn-reactivate">
+                                                <i class="fas fa-undo"></i> Réactiver
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" class="btn-task-toggle btn-complete">
+                                                <i class="fas fa-check"></i> Terminer
+                                            </button>
+                                        {% endif %}
+                                    </form>
+
+                                    <!-- Bouton de suppression -->
+                                    <a href="{% url 'delete_task' task.task_id %}" class="btn-task-del"
+                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-task">
+                            <i class="fas fa-info-circle"></i>
+                            <i>Aucune tâche à afficher</i>
+                        </div>
+                    {% endif %}
+                </div>
+
                 <div class="task-action">
-                    <a href="#" class="task-btn">
-                        <i class="fas fa-list"></i>
-                        Nouvelle tâche
+                    <!-- Bouton pour ouvrir la modale tâche -->
+                    <a href="#" class="task-btn" data-project="{{ projet.p_id }}">
+                        <i class="fas fa-plus"></i> Nouvelle tâche
                     </a>
                 </div>
+
                 <div class="project-delete">
-                    <a href="{% url 'delete' projet.p_id %}" class="del-btn">
-                        <i class="fas fa-trash"></i>
-                        Supprimer
+                    <a href="{% url 'delete' projet.p_id %}" class="del-btn"
+                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet et toutes ses tâches ?')">
+                        <i class="fas fa-trash"></i> Supprimer le projet
                     </a>
                 </div>
             </div>
         {% endfor %}
     </div>
+
+    <!-- MODAL AJOUT TÂCHE -->
+    <div class="modals modals-hide add-task" id="addTaskModal" role="dialog" aria-modal="true">
+        <div class="modal-content" tabindex="-1">
+            <button class="close-modal" type="button">&times;</button>
+            <form action="{% url 'add_task' %}" method="POST">
+                {% csrf_token %}
+                <h1 class="title">Créer une tâche</h1>
+
+                <input type="hidden" name="task_project" id="taskProjectId">
+
+                <input type="text" name="task_title" placeholder="Titre de la tâche" required>
+                <textarea name="task_desc" placeholder="Description (optionnelle)"></textarea>
+                <input type="text" name="task_duration" placeholder="Durée estimée (HH:MM:SS)">
+
+                <div class="task-completed">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="task_finish" class="task-checkbox">
+                        <span class="checkmark"></span>
+                        Marquer comme terminée
+                    </label>
+                </div>
+
+                <button type="submit" class="confirm">Créer</button>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // Profil déroulant
         let profile = document.querySelector(".profile-display");
         let optionProfile = document.querySelector(".profil-option");
         let profileArrow = document.querySelector(".profile-arrow");
@@ -154,29 +259,72 @@
                 profileArrow.classList.add('rotated');
             }
         });
+
+        // Modal Projet
         const modal = document.querySelector('.modals.add-project');
         const openModalBtn = document.querySelector('.action-btn');
-        const closeModalBtn = document.querySelector('.close-modal');
+        const closeModalBtn = document.querySelector('.add-project .close-modal');
 
-        // Ouvrir la modale
         openModalBtn.addEventListener('click', (e) => {
             e.preventDefault();
             modal.classList.remove('modals-hide');
             modal.classList.add('modals-show');
         });
 
-        // Fermer la modale
         closeModalBtn.addEventListener('click', () => {
             modal.classList.remove('modals-show');
             modal.classList.add('modals-hide');
         });
 
-        // Fermer en cliquant en dehors du formulaire
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.classList.remove('modals-show');
                 modal.classList.add('modals-hide');
             }
+        });
+
+        // Modal Tâche
+        const taskModal = document.querySelector('.modals.add-task');
+        const taskCloseBtn = taskModal.querySelector('.close-modal');
+        const taskProjectInput = document.getElementById('taskProjectId');
+        const taskBtns = document.querySelectorAll('.task-btn');
+
+        taskBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const projectId = btn.getAttribute('data-project');
+                taskProjectInput.value = projectId;
+                taskModal.classList.remove('modals-hide');
+                taskModal.classList.add('modals-show');
+            });
+        });
+
+        taskCloseBtn.addEventListener('click', () => {
+            taskModal.classList.remove('modals-show');
+            taskModal.classList.add('modals-hide');
+        });
+
+        taskModal.addEventListener('click', (e) => {
+            if (e.target === taskModal) {
+                taskModal.classList.remove('modals-show');
+                taskModal.classList.add('modals-hide');
+            }
+        });
+
+        // Animation pour les badges
+        document.querySelectorAll('.badge').forEach(badge => {
+            badge.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+            });
+            
+            badge.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Effet visuel pour les tâches terminées
+        document.querySelectorAll('.task-completed').forEach(task => {
+            task.style.opacity = '0.8';
         });
     </script>
 {% endblock %}
